@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from flask.ext.socketio import SocketIO, emit
+from flask_socketio import SocketIO
 
 print("Flask-SocketIO running...")
 app = Flask(__name__)
@@ -12,11 +12,11 @@ def initialize():
         
 @app.route('/')
 def index():
-    print('index')
+    print('Rendering index.html')
     return render_template('index.html')
 
 @socketio.on('ledCtrl', namespace='/test')
-def ledACtrl(message):
+def ledCtrl(message):
     print(message['led'])
 
 if __name__ == '__main__':
