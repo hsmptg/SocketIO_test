@@ -10,9 +10,15 @@ socketio = SocketIO(app)
 def onSerialMsg(msg):
     print(msg)
     but = True if msg=='b1' else False
-    socketio.emit('butState', {'but': but}, namespace='/test')
+    socketio.emit('butAState', {'but': but}, namespace='/test')
+
+def onNetMsg(msg):
+    print(msg)
+    but = True if msg=='Button ON' else False
+    socketio.emit('butRState', {'but': but}, namespace='/test')
 
 ser = myComm.mySerial()
+net = myComm.myNet()
 
 @app.before_first_request
 def initialize():
@@ -20,19 +26,29 @@ def initialize():
     ser.onMsg = onSerialMsg
     ser.connect('COM3')
 #    ser.port = "/dev/ttyACM0"
+    net.onMsg = onNetMsg
+    net.connect('192.168.1.91', 12345)
 
 @app.route('/')
 def index():
     print('Rendering index.html')
     return render_template('index.html')
 
-@socketio.on('ledCtrl', namespace='/test')
-def ledCtrl(message):
+@socketio.on('ledACtrl', namespace='/test')
+def ledACtrl(message):
     print(message['led'])
     if message['led']:
         ser.sendMsg('l1')
     else:
         ser.sendMsg('l0')
 
+@socketio.on('ledRCtrl', namespace='/test')
+def ledRCtrl(message):
+    print(message['led'])
+    if message['led']:
+        net.sendMsg('l1')
+    else:
+        net.sendMsg('l0')
+        
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5001)

@@ -19,16 +19,28 @@
 			$('#log').append(url);
 			var socket = io.connect(url);
 			
-			$('#led').change(function() {
+			$('#ledA').change(function() {
 				state = $(this).is(":checked");
 				log(state ? "LED ON" : "LED OFF");
-				socket.emit('ledCtrl', {led: state});
+				socket.emit('ledACtrl', {led: state});
 			});	
 
-			socket.on('butState', function(msg) {
+			$('#ledR').change(function() {
+				state = $(this).is(":checked");
+				log(state ? "LED ON" : "LED OFF");
+				socket.emit('ledRCtrl', {led: state});
+			});	
+
+			socket.on('butAState', function(msg) {
 				but = msg.but ? "Button ON" : "Button OFF";
 				log(but);
-				$('#button').text(but);
+				$('#buttonA').text(but);
+			});			
+
+			socket.on('butRState', function(msg) {
+				but = msg.but ? "Button ON" : "Button OFF";
+				log(but);
+				$('#buttonR').text(but);
 			});			
 		})
 	</script>
@@ -38,8 +50,13 @@
 	<tr>
 		<td>
 			<h1>Arduino</h1>
-			<input type="checkbox" id="led">LED<br>
-			<p id="button">Button Off</p>			
+			<input type="checkbox" id="ledA">LED<br>
+			<p id="buttonA">Button Off</p>			
+		</td>
+		<td>
+			<h1>RasPi</h1>
+			<input type="checkbox" id="ledR">LED<br>
+			<p id="buttonR">Button Off</p>			
 		</td>
 		<td>
 			<textarea id="log" rows="15" cols="50"></textarea>
