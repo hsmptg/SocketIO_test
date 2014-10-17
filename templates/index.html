@@ -24,6 +24,12 @@
 				log(state ? "LED ON" : "LED OFF");
 				socket.emit('ledCtrl', {led: state});
 			});	
+
+			socket.on('butState', function(msg) {
+				but = msg.but ? "Button ON" : "Button OFF";
+				log(but);
+				$('#button').text(but);
+			});			
 		})
 	</script>
 </head>
@@ -33,6 +39,7 @@
 		<td>
 			<h1>Arduino</h1>
 			<input type="checkbox" id="led">LED<br>
+			<p id="button">Button Off</p>			
 		</td>
 		<td>
 			<textarea id="log" rows="15" cols="50"></textarea>
