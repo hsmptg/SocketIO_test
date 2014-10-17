@@ -1,5 +1,6 @@
 import serial
 from threading import Thread
+import time
 
 class mySerial(object):
     def __init__(self, parent=None):
@@ -10,10 +11,9 @@ class mySerial(object):
         try:
             self.ser.port = port
             self.ser.baudrate = 115200
-            self.ser.timeout = 1
+            self.ser.timeout = 0 # non-blocking read
             self.ser.open()
             self.th = Thread(target=self._th_read)
-            self.th.daemon = True
             self.th.start()
             return True            
         except serial.SerialException as e:
@@ -29,7 +29,8 @@ class mySerial(object):
     def _th_read(self):
         while True:
             try:
-                cmd = self.ser.readline().rstrip('\n')
+                time.sleep(0.001)
+                cmd = self.ser.readline().rstrip('\r\n')
                 if cmd <> "":
                     if self.onMsg:
                         self.onMsg(cmd)

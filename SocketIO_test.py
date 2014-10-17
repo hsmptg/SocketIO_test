@@ -9,8 +9,8 @@ socketio = SocketIO(app)
 
 def onSerialMsg(msg):
     print(msg)
-    but = True if msg=='BUT oN' else False
-    socketio.emit('butAState', {'but': but}, namespace='/test')
+    but = True if msg=='b1' else False
+    socketio.emit('butState', {'but': but}, namespace='/test')
 
 ser = myComm.mySerial()
 
@@ -18,7 +18,7 @@ ser = myComm.mySerial()
 def initialize():
     print('Called only once, when the first request comes in')
     ser.onMsg = onSerialMsg
-    ser.connect('COM5')      
+    ser.connect('COM3')
         
 @app.route('/')
 def index():
