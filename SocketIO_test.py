@@ -2,16 +2,22 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 import myComm
 
-ser = myComm.mySerial()
-
 print('Flask-SocketIO running...')
 app = Flask(__name__)
 app.debug = False
 socketio = SocketIO(app)
 
+def onSerialMsg(msg):
+    print(msg)
+    but = True if msg=='BUT oN' else False
+    socketio.emit('butAState', {'but': but}, namespace='/test')
+
+ser = myComm.mySerial()
+
 @app.before_first_request
 def initialize():
     print('Called only once, when the first request comes in')
+    ser.onMsg = onSerialMsg
     ser.connect('COM5')      
         
 @app.route('/')
