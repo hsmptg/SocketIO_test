@@ -1,6 +1,5 @@
 import serial
 import threading
-import time
 import socket
 
 class mySerial(object):
@@ -24,7 +23,7 @@ class mySerial(object):
             
     def sendMsg(self, msg):
         try:
-            self.ser.write(msg + "\r")
+            self.ser.write(msg + '\r')
         except serial.SerialException as e:
             print(e)
             
@@ -41,7 +40,7 @@ class mySerial(object):
                 
     def stop(self):
         self.t1_stop.set()
-        self.th.join()
+#        self.th.join()
 
 class myNet(object):
     def __init__(self, parent=None):
@@ -61,35 +60,35 @@ class myNet(object):
   
     def sendMsg(self, msg):
         try:
-            self.soc.sendall(msg + "\r\n")
+            self.soc.sendall(msg + '\r\n')
         except AttributeError:
-            print("Not connected yet!")
+            print('Not connected yet!')
         except socket.error:
-            print("Lost connection!")        
+            print('Lost connection!')        
 
     def _th_read(self, arg1, stop_event):
         self.soc.settimeout(1)
-        buf = ""
+        buf = ''
         while(not stop_event.is_set()):
 #            stop_event.wait(.001)        
             try:
                 s = self.soc.recv(1024)
-                if s == "":
-                    print("Disconnected")
+                if s == '':
+                    print('Disconnected')
                     break # if conn lost get out!
                 buf = buf + s
-                while "\r\n" in buf:
-                    (cmd, buf) = buf.split("\r\n", 1)
-                    if cmd <> "":
+                while '\r\n' in buf:
+                    (cmd, buf) = buf.split('\r\n', 1)
+                    if cmd <> '':
                         if self.onMsg:
                             self.onMsg(cmd)
             except socket.timeout:
                 continue
             except socket.error:
-                print("Lost connection!")
+                print('Lost connection!')
                 break            
 
     def stop(self):
         self.t1_stop.set()
-        self.th.join()
+#        self.th.join()
             

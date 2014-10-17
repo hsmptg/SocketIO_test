@@ -1,3 +1,6 @@
+import gevent.monkey
+gevent.monkey.patch_thread()
+
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 import myComm
@@ -6,7 +9,7 @@ import sys #exit
 import signal #signal
 
 def signal_handler(signal, frame):
-    print("\rYou pressed Ctrl+C!")
+    print('\rYou pressed Ctrl+C!')
     ser.stop()
     net.stop()
     print('Exit!')
