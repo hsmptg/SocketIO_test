@@ -2,6 +2,18 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 import myComm
 
+import sys #exit
+import signal #signal
+
+def signal_handler(signal, frame):
+    print("\rYou pressed Ctrl+C!")
+    ser.stop()
+    net.stop()
+    print('Exit!')
+    sys.exit(0)
+    
+signal.signal(signal.SIGINT, signal_handler)
+
 print('Flask-SocketIO running...')
 app = Flask(__name__)
 app.debug = False
@@ -24,8 +36,8 @@ net = myComm.myNet()
 def initialize():
     print('Called only once, when the first request comes in')
     ser.onMsg = onSerialMsg
-    ser.connect('COM3')
-#    ser.port = "/dev/ttyACM0"
+#    ser.connect('COM3')
+    ser.connect('/dev/ttyACM0')
     net.onMsg = onNetMsg
     net.connect('192.168.1.91', 12345)
 

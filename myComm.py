@@ -1,5 +1,5 @@
 import serial
-from threading import Thread
+import threading
 import time
 import socket
 
@@ -14,7 +14,8 @@ class mySerial(object):
             self.ser.baudrate = 115200
             self.ser.timeout = 0 # non-blocking read
             self.ser.open()
-            self.th = Thread(target=self._th_read)
+            self.t1_stop = threading.Event()
+            self.th = threading.Thread(target = self._th_read, args=(1, self.t1_stop))
             self.th.start()
             return True            
         except serial.SerialException as e:
@@ -27,16 +28,20 @@ class mySerial(object):
         except serial.SerialException as e:
             print(e)
             
-    def _th_read(self):
-        while True:
+    def _th_read(self, arg1, stop_event):
+        while(not stop_event.is_set()):
+            stop_event.wait(.001)        
             try:
-                time.sleep(0.001)
                 cmd = self.ser.readline().rstrip('\r\n')
                 if cmd <> "":
                     if self.onMsg:
                         self.onMsg(cmd)
             except serial.SerialException as e:
                 print(e)
+                
+    def stop(self):
+        self.t1_stop.set()
+        self.th.join()
 
 class myNet(object):
     def __init__(self, parent=None):
@@ -46,7 +51,8 @@ class myNet(object):
     def connect(self, ip, port):
         try:
             self.soc.connect((ip, port))
-            self.th = Thread(target=self._th_read)
+            self.t1_stop = threading.Event()
+            self.th = threading.Thread(target = self._th_read, args=(1, self.t1_stop))
             self.th.start()
             return True            
         except Exception,e:
@@ -61,10 +67,11 @@ class myNet(object):
         except socket.error:
             print("Lost connection!")        
 
-    def _th_read(self):
+    def _th_read(self, arg1, stop_event):
         self.soc.settimeout(1)
         buf = ""
-        while True:
+        while(not stop_event.is_set()):
+#            stop_event.wait(.001)        
             try:
                 s = self.soc.recv(1024)
                 if s == "":
@@ -81,4 +88,8 @@ class myNet(object):
             except socket.error:
                 print("Lost connection!")
                 break            
+
+    def stop(self):
+        self.t1_stop.set()
+        self.th.join()
             
