@@ -46,7 +46,6 @@ class myNet(object):
     def connect(self, ip, port):
         try:
             self.soc.connect((ip, port))
-#            self._exit = False
             self.th = Thread(target=self._th_read)
             self.th.start()
             return True            
@@ -54,31 +53,17 @@ class myNet(object):
             print str(e)
             return False
   
-    #===========================================================================
-    # def disconnect(self):
-    #     self._exit = True
-    #     self.th.join()
-    #     self.soc.close()
-    #===========================================================================
-            
     def sendMsg(self, msg):
         try:
-            #self.soc.send(msg + '\r\n')
             self.soc.sendall(msg + "\r\n")
         except AttributeError:
             print("Not connected yet!")
         except socket.error:
             print("Lost connection!")        
 
-    #===========================================================================
-    # def readMsg(self):
-    #     return list(_listMsgs(self.fifo))
-    #===========================================================================
-    
     def _th_read(self):
         self.soc.settimeout(1)
         buf = ""
-#        while not self._exit:
         while True:
             try:
                 s = self.soc.recv(1024)
@@ -89,7 +74,6 @@ class myNet(object):
                 while "\r\n" in buf:
                     (cmd, buf) = buf.split("\r\n", 1)
                     if cmd <> "":
-#                        self.fifo.put(cmd)
                         if self.onMsg:
                             self.onMsg(cmd)
             except socket.timeout:
@@ -97,9 +81,4 @@ class myNet(object):
             except socket.error:
                 print("Lost connection!")
                 break            
-
-    #===========================================================================
-    # def stop(self):
-    #     if not self._exit:
-    #         self.disconnect()        
-    #===========================================================================
+            
