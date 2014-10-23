@@ -24,8 +24,8 @@ def onSerialMsg(msg):
     global socketio
     
     print(msg)
-#    but = True if msg=='b1' else False
-    but = True if msg=='BUT oN' else False
+    but = True if msg=='b1' else False
+#    but = True if msg=='BUT oN' else False
     socketio.emit('butAState', {'but': but}, namespace='/test')
 
 def onNetMsg(msg):
@@ -53,12 +53,12 @@ def main():
     def initialize():
         print('Called only once, when the first request comes in')
         ser.onMsg = onSerialMsg
-    #    ser.connect('COM3')
-        ser.connect('COM5')
-    #    ser.connect('/dev/ttyACM0')
+        ser.connect('COM3')
+#        ser.connect('COM5')
+#        ser.connect('/dev/ttyACM0')
         net.onMsg = onNetMsg
-    #    net.connect('192.168.1.91', 12345)
-        net.connect('10.0.0.4', 12345)
+        net.connect('192.168.1.91', 12345)
+#        net.connect('10.0.0.4', 12345)
     
     @app.route('/')
     def index():
