@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Test{% endblock %}	
+	
+{% block page_content %}
+<div class="page-header">
+    <h1>ButLed <span class="glyphicon glyphicon-flash" style='font-size: 50px'></span></h1>
+</div>
+<div class="bs-example">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#Arduino">Arduino</a></li>
+        <li><a data-toggle="tab" href="#RasPi">Raspberry Pi</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="Arduino" class="tab-pane fade in active">
+        	<br>
+			<p>LED <input type="checkbox" name="my-checkbox" checked></p>
+			<p>Button: <img id="myImage" onclick="changeImage()" src="{{ url_for('static', filename='imgs/pic_bulboff.gif') }}" width="100" height="180"></p>
+        </div>
+        <div id="RasPi" class="tab-pane fade">
+            <h3>Raspberry Pi</h3>
+            <p>LED2</p>
+            <p>Button:</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+	<script src="{{ url_for('static', filename='js/bootstrap-switch.min.js') }}"></script>
+	
+	<script>
+		function changeImage() {
+		    var image = document.getElementById('myImage');
+		    if (image.src.match("bulbon")) {
+		        image.src = "{{ url_for('static', filename='imgs/pic_bulboff.gif') }}";
+		    } else {
+		        image.src = "{{ url_for('static', filename='imgs/pic_bulbon.gif') }}";
+		    }
+		}	
+	
+		$(document).ready(function(){
+		    var image = document.getElementById('myImage');
+			$("[name='my-checkbox']").bootstrapSwitch('size', 'mini');
+			$("[name='my-checkbox']").on('switchChange.bootstrapSwitch', function(event, state) {
+			    if (state) {
+			        image.src = "{{ url_for('static', filename='imgs/pic_bulboff.gif') }}";
+			    } else {
+			        image.src = "{{ url_for('static', filename='imgs/pic_bulbon.gif') }}";
+			    }
+			});
+		})
+	</script>
+{% endblock %}
