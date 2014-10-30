@@ -4,6 +4,8 @@ gevent.monkey.patch_thread()
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
+#from werkzeug.contrib.cache import SimpleCache
+
 import myComm
 
 import sys #exit
@@ -24,8 +26,8 @@ def onSerialMsg(msg):
     global socketio
     
     print(msg)
-    but = True if msg=='b1' else False
-#    but = True if msg=='BUT oN' else False
+#    but = True if msg=='b1' else False
+    but = True if msg=='BUT oN' else False
     socketio.emit('butAState', {'but': but}, namespace='/test')
 
 def onNetMsg(msg):
@@ -42,6 +44,8 @@ def main():
     
     print('Flask-SocketIO running...')
     app = Flask(__name__)
+#    c = SimpleCache()
+#    c.clear()
     Bootstrap(app)
     app.debug = False    
     socketio = SocketIO(app)
@@ -53,12 +57,12 @@ def main():
     def initialize():
         print('Called only once, when the first request comes in')
         ser.onMsg = onSerialMsg
-        ser.connect('COM3')
-#        ser.connect('COM5')
+#        ser.connect('COM3')
+        ser.connect('COM5')
 #        ser.connect('/dev/ttyACM0')
         net.onMsg = onNetMsg
-        net.connect('192.168.1.91', 12345)
-#        net.connect('10.0.0.4', 12345)
+#        net.connect('192.168.1.91', 12345)
+        net.connect('10.0.0.4', 12345)
     
     @app.route('/')
     def index():
@@ -68,6 +72,10 @@ def main():
     @app.route('/2')
     def index2():
         return render_template('index2.html')
+
+    @app.route('/3')
+    def index3():
+        return render_template('index3.html')
 
     @socketio.on('ledACtrl', namespace='/test')
     def ledACtrl(message):

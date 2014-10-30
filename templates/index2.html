@@ -2,11 +2,6 @@
 
 {% block title %}Test{% endblock %}	
 
-{% block head %}
-{{ super() }}
-	<link href="{{ url_for('static', filename='css/bootstrap-switch.min.css') }}" rel="stylesheet">
-{% endblock %}
-	
 {% block page_content %}
 <div class="page-header">
     <h1>ButLed <span class="glyphicon glyphicon-flash" style='font-size: 50px'></span></h1>
@@ -21,18 +16,38 @@
 		    <div class="tab-content">
 		        <div id="Arduino" class="tab-pane fade in active">
 		        	<br>
-					<p>LED <input type="checkbox" id="ledA" checked></p>
-					<p>Button: <img id="myImageA" src="{{ url_for('static', filename='imgs/pic_bulboff.gif') }}" width="100" height="180"></p>
+					<p>LED <img id="ledA" onclick="changeLed(this.id)" src="{{ url_for('static', filename='imgs/butoff.png') }}" width="96" height="50">
+					<p>Button: <img id="myImageA" src="{{ url_for('static', filename='imgs/ledoff.png') }}" width="60" height="50"></p>
 		        </div>
 		        <div id="RasPi" class="tab-pane fade">
 		            <h3>Raspberry Pi</h3>
-					<p>LED <input type="checkbox" id="ledR" name="my-checkboxR" checked></p>
-					<p>Button: <img id="myImageR"  src="{{ url_for('static', filename='imgs/pic_bulboff.gif') }}" width="100" height="180"></p>
+					<p>LED <img id="ledR" onclick="changeLed(this.id)" src="{{ url_for('static', filename='imgs/butoff.png') }}" width="96" height="50">
+					<p>Button: <img id="myImageR"  src="{{ url_for('static', filename='imgs/ledoff.png') }}" width="60" height="50"></p>
 		        </div>
 		    </div>
 		</div>
 		<div class = "col-md-5" id = "log_space">
-			<textarea id="log" rows="10" cols="30"></textarea>
+			<div class="panel panel-default">
+    			<div class="panel-heading clearfix">
+    				<b>Log</b>
+    			    <div class="pull-right">
+            			<a href="#" class="btn btn-xs btn-primary">Clear</a>
+        			</div>
+    			</div>
+    			<div class="panel-body">
+    				<textarea id="log" class="form-control" rows="15"></textarea>
+    			</div>
+			</div>			
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading clearfix">Log
+		    <div class="pull-right">
+       			<a href="#" class="btn btn-xs btn-primary">Clear</a>
+   			</div>
+		</div>
+		<div class="panel-body">
+			<textarea id="log2" class="form-control" rows="5"></textarea>
 		</div>
 	</div>
 </div>
@@ -40,30 +55,41 @@
 
 {% block scripts %}
 {{ super() }}
-	<script src="{{ url_for('static', filename='js/bootstrap-switch.min.js') }}"></script>
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
 	
 	<script type="text/javascript" charset="utf-8">
-		$(document).ready(function(){
-			var obj=document.getElementById("log");
-			function log(msg) {
-				$('#log').append('\n' +msg);
-				obj.scrollTop=obj.scrollHeight;
-			}
+		namespace = '/test'; // change to an empty string to use the global namespace
+		var url = 'http://' + document.domain + ':' + location.port + namespace;
+		var socket = io.connect(url);
 	
-			namespace = '/test'; // change to an empty string to use the global namespace
-			var url = 'http://' + document.domain + ':' + location.port + namespace;
+		var obj=document.getElementById("log");
+		function log(msg) {
+			$('#log').append('\n' +msg);
+			obj.scrollTop=obj.scrollHeight;
+		}
+
+		function changeLed(id) {
+			var element = document.getElementById(id);
+			var state = element.src.match("off") != null;
+			if (state)
+				element.src="{{ url_for('static', filename='imgs/buton.png') }}"; 
+			else
+				element.src="{{ url_for('static', filename='imgs/butoff.png') }}"; 
+			log(state ? "LED ON" : "LED OFF");
+			socket.emit(id + 'Ctrl', {led: state});
+		} 
+		
+		$(document).ready(function(){
 			$('#log').append(url);
-			var socket = io.connect(url);
 			
 		    var imageA = document.getElementById('myImageA');
 			socket.on('butAState', function(msg) {
 				but = msg.but ? "Button ON" : "Button OFF";
 				log(but);
 			    if (msg.but)
-			        imageA.src = "{{ url_for('static', filename='imgs/pic_bulbon.gif') }}";
+			        imageA.src = "{{ url_for('static', filename='imgs/ledon.png') }}";
 			    else
-			        imageA.src = "{{ url_for('static', filename='imgs/pic_bulboff.gif') }}";
+			        imageA.src = "{{ url_for('static', filename='imgs/ledoff.png') }}";
 			});			
 
 		    var imageR = document.getElementById('myImageR');
@@ -71,21 +97,9 @@
 				but = msg.but ? "Button ON" : "Button OFF";
 				log(but);
 			    if (msg.but)
-			        imageR.src = "{{ url_for('static', filename='imgs/pic_bulbon.gif') }}";
+			        imageA.src = "{{ url_for('static', filename='imgs/ledon.png') }}";
 			    else
-			        imageR.src = "{{ url_for('static', filename='imgs/pic_bulboff.gif') }}";
-			});			
-
-			$('#ledA').bootstrapSwitch();
-			$('#ledA').on('switchChange.bootstrapSwitch', function(event, state) {
-				log(state ? "LED_A ON" : "LED_A OFF");
-				socket.emit('ledACtrl', {led: state});
-			});			
-
-			$('#ledR').bootstrapSwitch('size', 'mini');
-			$('#ledR').on('switchChange.bootstrapSwitch', function(event, state) {
-				log(state ? "LED ON" : "LED OFF");
-				socket.emit('ledRCtrl', {led: state});
+			        imageA.src = "{{ url_for('static', filename='imgs/ledoff.png') }}";
 			});			
 		});
 	</script>	
